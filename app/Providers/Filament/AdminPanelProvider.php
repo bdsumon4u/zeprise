@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Billing\TenantBillingProvider;
 use App\Filament\Pages\Tenancy\RegisterBusiness;
 use App\Models\Business;
 use Filament\Http\Middleware\Authenticate;
@@ -58,6 +59,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->tenant(Business::class, slugAttribute: 'slug')
             ->tenantRegistration(RegisterBusiness::class)
+            // ->tenantBillingProvider(new TenantBillingProvider())
             ->spa();
     }
 }
