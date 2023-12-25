@@ -21,4 +21,9 @@ class Business extends Model implements HasCurrentTenantLabel
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }
