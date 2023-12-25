@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Billing\TenantBillingProvider;
 use App\Filament\Pages\Tenancy\RegisterBusiness;
 use App\Models\Business;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -15,6 +16,8 @@ use Filament\Support\Colors\Color;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
@@ -61,5 +64,16 @@ class AdminPanelProvider extends PanelProvider
             ->tenantRegistration(RegisterBusiness::class)
             // ->tenantBillingProvider(new TenantBillingProvider())
             ->spa();
+    }
+
+    public function boot(): void
+    {
+        Model::resolveRelationUsing(
+            ($panel = Filament::getCurrentPanel())->getTenantOwnershipRelationshipName(),
+            fn (Model $model): BelongsTo => $model->belongsTo(
+                $tenantModel = $panel->getTenantModel(),
+                app($tenantModel)->getForeignKey(),
+            ),
+        );
     }
 }
