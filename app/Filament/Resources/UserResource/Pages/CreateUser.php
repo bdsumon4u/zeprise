@@ -9,4 +9,15 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        if ($data['password']) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        return $data;
+    }
 }

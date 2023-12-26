@@ -305,7 +305,7 @@ class RoleResource extends Resource implements HasShieldPermissions
     public static function getNavigationBadge(): ?string
     {
         return Utils::isResourceNavigationBadgeEnabled()
-            ? static::getModel()::count()
+            ? static::getEloquentQuery()->count()
             : null;
     }
 
@@ -314,12 +314,12 @@ class RoleResource extends Resource implements HasShieldPermissions
         return Utils::isScopedToTenant();
     }
 
-    // public static function getEloquentQuery(): Builder
-    // {
-    //     return parent::getEloquentQuery()->orWhere(
-    //         'business_id', 0,
-    //     );
-    // }
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->orWhereNull(
+            Filament::getTenant()->getForeignKey(),
+        );
+    }
 
     public static function canGloballySearch(): bool
     {

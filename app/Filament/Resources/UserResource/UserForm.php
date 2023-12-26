@@ -21,16 +21,20 @@ trait UserForm
                     ->required()
                     ->unique(static::getModel(), 'email', ignoreRecord: auth()->user()?->email)
                     ->maxLength(255),
-                Forms\Components\Select::make('role')
-                    ->native(false)
-                    ->multiple()
+                Forms\Components\Select::make('roles')
                     ->relationship('roles', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->native(false)
                     ->getOptionLabelFromRecordUsing(function ($record) {
                         return Str::of($record->name)->replace('_', ' ')->title();
                     }),
                 Forms\Components\TextInput::make('password')
+                    ->required(function ($component) {
+                        return $component->getContainer()->getOperation() === 'create';
+                    })
                     ->password()
-                    ->required()
                     ->minLength(8),
             ]);
     }

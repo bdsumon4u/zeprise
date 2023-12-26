@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserResource extends Resource
 {
@@ -17,7 +19,10 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static bool $isScopedToTenant = false;
+    public static function getEloquentQuery(): Builder
+    {
+        return Filament::getTenant()->users()->getQuery();
+    }
 
     public static function getRelations(): array
     {
