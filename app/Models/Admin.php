@@ -11,15 +11,15 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser, HasDefaultTenant, HasTenants
+class Admin extends Authenticatable implements FilamentUser, HasDefaultTenant, HasTenants
 {
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -62,9 +62,9 @@ class User extends Authenticatable implements FilamentUser, HasDefaultTenant, Ha
         return Business::find(session('tenant_id'));
     }
 
-    public function businesses(): BelongsToMany
+    public function businesses(): HasMany
     {
-        return $this->belongsToMany(Business::class);
+        return $this->hasMany(Business::class);
     }
 
     public function canAccessTenant(Model $tenant): bool

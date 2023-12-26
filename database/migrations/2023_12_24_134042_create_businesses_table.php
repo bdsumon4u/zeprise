@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Admin;
 use App\Models\Business;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -15,14 +16,15 @@ return new class extends Migration
     {
         Schema::create('businesses', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Admin::class);
             $table->string('name');
             $table->string('slug')->unique()->index();
             $table->timestamps();
         });
+
         Schema::create('business_user', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(Business::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Business::class);
+            $table->foreignIdFor(User::class);
             $table->timestamps();
         });
     }

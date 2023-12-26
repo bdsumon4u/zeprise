@@ -17,9 +17,9 @@ class Business extends Model implements HasCurrentTenantLabel
         return 'Plan: ' . strtoupper($this->subscription->plan->name);
     }
 
-    public function members()
+    public function admin()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsTo(Admin::class);
     }
 
     public function products()

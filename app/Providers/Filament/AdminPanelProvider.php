@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Billing\TenantBillingProvider;
 use App\Filament\Pages\Tenancy\RegisterBusiness;
 use App\Http\Middleware\SyncSpatiePermissionsWithFilamentTenants;
 use App\Models\Business;
@@ -25,15 +24,16 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class AppPanelProvider extends PanelProvider
+class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('app')
-            ->path('app')
+            ->id('admin')
+            ->path('admin')
+            ->authGuard('admin')
             ->login()
+            ->registration()
             ->colors([
                 'primary' => Color::Rose,
             ])
@@ -68,6 +68,19 @@ class AppPanelProvider extends PanelProvider
                 SyncSpatiePermissionsWithFilamentTenants::class,
             ], isPersistent: true)
             ->tenant(Business::class, slugAttribute: 'slug')
+            ->tenantRegistration(RegisterBusiness::class)
+            // ->tenantBillingProvider(new TenantBillingProvider())
             ->spa();
+    }
+
+    public function boot(): void
+    {
+        Model::resolveRelationUsing(
+            ($panel = Filament::getCurrentPanel())->getTenantOwnershipRelationshipName(),
+            fn (Model $model): BelongsTo => $model->belongsTo(
+                $tenantModel = $panel->getTenantModel(),
+                app($tenantModel)->getForeignKey(),
+            ),
+        );
     }
 }
