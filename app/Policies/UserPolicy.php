@@ -2,21 +2,13 @@
 
 namespace App\Policies;
 
-use App\Models\Admin;
-use Illuminate\Foundation\Auth\User;
+use App\Models\User;
 
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
 {
     use HandlesAuthorization;
-
-    public function before(User $user): ?bool
-    {
-        if ($user instanceof Admin) return true;
-
-        return $user->hasRole('super-admin') ? true : null;
-    }
 
     /**
      * Determine whether the user can view any models.

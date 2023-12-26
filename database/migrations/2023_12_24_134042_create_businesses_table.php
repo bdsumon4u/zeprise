@@ -16,16 +16,18 @@ return new class extends Migration
     {
         Schema::create('businesses', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Admin::class);
             $table->string('name');
             $table->string('slug')->unique()->index();
             $table->timestamps();
         });
 
         Schema::create('business_user', function (Blueprint $table) {
-            $table->foreignIdFor(Business::class);
-            $table->foreignIdFor(User::class);
+            $table->foreignIdFor(Business::class)->index();
+            $table->foreignIdFor(User::class)->index();
+            $table->boolean('owner')->default(false);
             $table->timestamps();
+
+            $table->primary(['business_id', 'user_id']);
         });
     }
 

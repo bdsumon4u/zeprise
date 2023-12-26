@@ -34,6 +34,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
+            ->registration()
             ->colors([
                 'primary' => Color::Rose,
             ])
@@ -68,6 +69,20 @@ class AppPanelProvider extends PanelProvider
                 SyncSpatiePermissionsWithFilamentTenants::class,
             ], isPersistent: true)
             ->tenant(Business::class, slugAttribute: 'slug')
+            ->tenantRegistration(RegisterBusiness::class)
+            // ->tenantRegistration(RegisterBusiness::class)
+            // ->tenantBillingProvider(new TenantBillingProvider())
             ->spa();
+    }
+
+    public function boot(): void
+    {
+        Model::resolveRelationUsing(
+            ($panel = Filament::getCurrentPanel())->getTenantOwnershipRelationshipName(),
+            fn (Model $model): BelongsTo => $model->belongsTo(
+                $tenantModel = $panel->getTenantModel(),
+                app($tenantModel)->getForeignKey(),
+            ),
+        );
     }
 }

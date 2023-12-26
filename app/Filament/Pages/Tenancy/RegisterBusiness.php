@@ -4,6 +4,7 @@ namespace App\Filament\Pages\Tenancy;
 
 use App\Models\Admin;
 use App\Models\Business;
+use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -36,11 +37,9 @@ class RegisterBusiness extends RegisterTenant
                     ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                         $set('slug', Str::slug($state));
                     })
-                    ->reactive()
-                    ->debounce()
+                    ->live(onBlur: true)
                     ->required(),
                 TextInput::make('slug')
-                    ->readOnly()
                     ->required(),
             ]);
     }
@@ -48,8 +47,12 @@ class RegisterBusiness extends RegisterTenant
     protected function handleRegistration(array $data): Business
     {
         return DB::transaction(function () use (&$data) {
-            $admin = (fn () : Admin => auth()->user())();
-            $business = $admin->businesses()->create($data);
+            $business = Business::create($data);
+
+            $owner = Filament::auth()->user();
+            $owner->businesses()->attach($business, [
+                'owner' => true,
+            ]);
 
             $plan = Plan::whereName('free')->firstOrFail();
 
@@ -59,7 +62,7 @@ class RegisterBusiness extends RegisterTenant
             // set actual new team_id to package instance
             setPermissionsTeamId($business);
             // get the admin user and assign roles/permissions on new team model
-            $admin->assignRole('Super Admin');
+            $owner->assignRole(Utils::getSuperAdminName());
             // restore session team_id to package instance using temporary value stored above
             setPermissionsTeamId($session_team_id);
 
