@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\UserResource;
 
+use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
+use App\Filament\Resources\Shield\RoleResource;
 
 trait UserForm
 {
@@ -24,23 +26,19 @@ trait UserForm
                     ->unique(static::getModel(), 'email', ignoreRecord: auth()->user()?->email)
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
-                    ->options(fn () => Role::query()
-                        ->whereBelongsTo(Filament::getTenant())
-                        ->orWhereNull(config('permission.column_names.team_foreign_key'))
-                        ->get()
-                        ->mapWithKeys(fn ($role) => [$role->name => $role->name])
-                    )
+                    ->relationship('roles', 'name')
+                    ->getOptionLabelFromRecordUsing(fn (Role $record) => Str::of($record->name)->replace('_', ' ')->title())
+                    ->saveRelationshipsUsing(fn (User $user, $state) => $user->syncRoles(
+                        Role::query(fn ($query) => $query->whereBelongsTo(
+                            ($tenant = Filament::getTenant())->orWhereNull($tenant->getForeignKey())
+                        ))->findOrFail($state)
+                    ))
                     ->multiple()
                     ->preload()
                     ->searchable()
-                    ->native(false)
-                    ->getOptionLabelFromRecordUsing(function ($record) {
-                        return Str::of($record->name)->replace('_', ' ')->title();
-                    }),
+                    ->native(false),
                 Forms\Components\TextInput::make('password')
-                    ->required(function ($component) {
-                        return $component->getContainer()->getOperation() === 'create';
-                    })
+                    ->required(fn (string $operation): bool => $operation === 'create')
                     ->password()
                     ->minLength(8),
             ]);

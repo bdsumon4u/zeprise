@@ -54,22 +54,22 @@ class User extends Authenticatable implements FilamentUser, HasDefaultTenant, Ha
 
     public function getTenants(Panel $panel): Collection
     {
-        return $this->businesses;
+        return $this->studios;
     }
 
     public function getDefaultTenant(Panel $panel): ?Model
     {
-        return Business::find(session('tenant_id'));
+        return Studio::find(session('tenant_id'));
     }
 
-    public function businesses(): BelongsToMany
+    public function studios(): BelongsToMany
     {
-        return $this->belongsToMany(Business::class);
+        return $this->belongsToMany(Studio::class);
     }
 
     public function canAccessTenant(Model $tenant): bool
     {
-        return $this->businesses->contains($tenant);
+        return $this->studios->contains($tenant);
     }
 
     public function canAccessPanel(Panel $panel): bool

@@ -2,10 +2,9 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Billing\TenantBillingProvider;
-use App\Filament\Pages\Tenancy\RegisterBusiness;
+use App\Filament\Pages\Tenancy\RegisterStudio;
 use App\Http\Middleware\SyncSpatiePermissionsWithFilamentTenants;
-use App\Models\Business;
+use App\Models\Studio;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -68,9 +67,8 @@ class AppPanelProvider extends PanelProvider
             ->tenantMiddleware([
                 SyncSpatiePermissionsWithFilamentTenants::class,
             ], isPersistent: true)
-            ->tenant(Business::class, slugAttribute: 'slug')
-            ->tenantRegistration(RegisterBusiness::class)
-            // ->tenantRegistration(RegisterBusiness::class)
+            ->tenant(Studio::class, slugAttribute: 'slug')
+            ->tenantRegistration(RegisterStudio::class)
             // ->tenantBillingProvider(new TenantBillingProvider())
             ->spa();
     }

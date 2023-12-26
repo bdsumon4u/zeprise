@@ -6,18 +6,22 @@ use Filament\Models\Contracts\HasCurrentTenantLabel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use LucasDotVin\Soulbscription\Models\Concerns\HasSubscriptions;
-use Spatie\Permission\Traits\HasRoles;
 
-class Business extends Model implements HasCurrentTenantLabel
+class Studio extends Model implements HasCurrentTenantLabel
 {
     use HasFactory;
     use HasSubscriptions;
-    use HasRoles;
 
     public function getCurrentTenantLabel(): string
     {
-        return 'Plan: ' . strtoupper($this->subscription->plan->name);
+        return 'Plan: '.strtoupper($this->subscription->plan->name);
+    }
+
+    public function roles(): HasMany
+    {
+        return $this->hasMany(config('permission.models.role'));
     }
 
     public function users(): BelongsToMany

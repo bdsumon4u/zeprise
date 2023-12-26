@@ -2,8 +2,7 @@
 
 namespace App\Filament\Pages\Tenancy;
 
-use App\Models\Admin;
-use App\Models\Business;
+use App\Models\Studio;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
@@ -15,18 +14,20 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use LucasDotVin\Soulbscription\Models\Plan;
 
-class RegisterBusiness extends RegisterTenant
+class RegisterStudio extends RegisterTenant
 {
     public static function getLabel(): string
     {
-        return 'Register business';
+        return 'Register studio';
     }
 
     public static function canView(): bool
     {
-        if (! Filament::auth()->check()) return true;
+        if (! Filament::auth()->check()) {
+            return true;
+        }
 
-        return Filament::auth()->user()->businesses->count() < 3;
+        return Filament::auth()->user()->studios->count() < 3;
     }
 
     public function form(Form $form): Form
@@ -44,13 +45,13 @@ class RegisterBusiness extends RegisterTenant
             ]);
     }
 
-    protected function handleRegistration(array $data): Business
+    protected function handleRegistration(array $data): Studio
     {
         return DB::transaction(function () use (&$data) {
-            $business = Business::create($data);
+            $business = Studio::create($data);
 
             $owner = Filament::auth()->user();
-            $owner->businesses()->attach($business, [
+            $owner->studios()->attach($business, [
                 'owner' => true,
             ]);
 

@@ -15,7 +15,7 @@ trait ProductForm
             ->schema([
                 TextInput::make('name')
                     ->unique(modifyRuleUsing: fn (Unique $rule) => $rule->where(
-                        Filament::getTenant()->getForeignKeyName(),
+                        Filament::getTenant()->getForeignKey(),
                         Filament::getTenant()->getKey(),
                     ))
                     ->required(),
