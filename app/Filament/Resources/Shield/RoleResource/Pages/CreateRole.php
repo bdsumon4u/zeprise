@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Shield\RoleResource\Pages;
 
 use App\Filament\Resources\Shield\RoleResource;
 use BezhanSalleh\FilamentShield\Support\Utils;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -23,7 +24,9 @@ class CreateRole extends CreateRecord
             ->values()
             ->flatten();
 
-        return Arr::only($data, ['name', 'guard_name']);
+        return Arr::only($data, ['name', 'guard_name']) + [
+            Filament::getTenant()->getForeignKey() => Filament::getTenant()->getKey(),
+        ];
     }
 
     protected function afterCreate(): void
