@@ -318,6 +318,14 @@ class RoleResource extends Resource implements HasShieldPermissions
             : null;
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where(
+            Filament::auth()->user()->getForeignKey(),
+            Filament::auth()->user()->getKey()
+        );
+    }
+
     public static function isScopedToTenant(): bool
     {
         return Utils::isScopedToTenant();

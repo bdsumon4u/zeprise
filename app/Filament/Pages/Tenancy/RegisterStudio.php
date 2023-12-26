@@ -61,7 +61,7 @@ class RegisterStudio extends RegisterTenant
 
             $session_team_id = getPermissionsTeamId();
             // set actual new team_id to package instance
-            setPermissionsTeamId($business);
+            setPermissionsTeamId($owner);
             // get the admin user and assign roles/permissions on new team model
             $owner->assignRole(Utils::getSuperAdminName());
             // restore session team_id to package instance using temporary value stored above

@@ -24,9 +24,9 @@ class CreateRole extends CreateRecord
             ->values()
             ->flatten();
 
-        return Arr::only($data, ['name', 'guard_name']); /* + [
-            Filament::getTenant()->getForeignKey() => Filament::getTenant()->getKey(),
-        ]; */
+        return Arr::only($data, ['name', 'guard_name']) + [
+            Filament::auth()->user()->getForeignKey() => Filament::auth()->user()->getKey(),
+        ];
     }
 
     protected function afterCreate(): void

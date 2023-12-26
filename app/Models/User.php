@@ -64,7 +64,7 @@ class User extends Authenticatable implements FilamentUser, HasDefaultTenant, Ha
 
     public function studios(): BelongsToMany
     {
-        return $this->belongsToMany(Studio::class);
+        return $this->belongsToMany(Studio::class)->withPivot(['owner']);
     }
 
     public function canAccessTenant(Model $tenant): bool

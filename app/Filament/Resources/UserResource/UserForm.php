@@ -30,7 +30,7 @@ trait UserForm
                     ->getOptionLabelFromRecordUsing(fn (Role $record) => Str::of($record->name)->replace('_', ' ')->title())
                     ->saveRelationshipsUsing(fn (User $user, $state) => $user->syncRoles(
                         Role::query(fn ($query) => $query->whereBelongsTo(
-                            ($tenant = Filament::getTenant())->orWhereNull($tenant->getForeignKey())
+                            ($owner = Filament::getTenant()->owner())->orWhereNull($owner->getForeignKey())
                         ))->findOrFail($state)
                     ))
                     ->multiple()
