@@ -50,15 +50,14 @@ class RoleResource extends Resource implements HasShieldPermissions
                                 Forms\Components\TextInput::make('name')
                                     ->label(__('filament-shield::filament-shield.field.name'))
                                     ->alphaDash()
-                                    // ->unique(
-                                    //     ignoreRecord: true,
-                                    //     modifyRuleUsing: fn ($rule) => $rule->where(function ($query) {
-                                    //         return $query->where(
-                                    //             $foreignKey = Filament::getTenant()->getForeignKey(),
-                                    //             Filament::getTenant()->getKey(),
-                                    //         )->orWhereNull($foreignKey);
-                                    //     })
-                                    // )
+                                    ->unique(
+                                        ignoreRecord: true,
+                                        modifyRuleUsing: fn ($rule) => $rule->where(function ($query) {
+                                            $foreignKey = ($owner = Filament::getTenant()->owner())->getForeignKey();
+
+                                            return $query->where($foreignKey, $owner->getKey())->orWhereNull($foreignKey);
+                                        })
+                                    )
                                     ->required()
                                     ->maxLength(255),
                                 Forms\Components\TextInput::make('guard_name')
@@ -218,11 +217,12 @@ class RoleResource extends Resource implements HasShieldPermissions
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->badge()
+                    // ->badge()
                     ->label(__('filament-shield::filament-shield.column.name'))
                     ->formatStateUsing(fn ($state): string => Str::headline($state))
                     ->colors(['primary'])
-                    ->searchable(),
+                    ->searchable()
+                    ->description(fn ($record) => $record->name),
                 Tables\Columns\TextColumn::make('guard_name')
                     ->badge()
                     ->label(__('filament-shield::filament-shield.column.guard_name')),
@@ -233,7 +233,10 @@ class RoleResource extends Resource implements HasShieldPermissions
                     ->colors(['success']),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label(__('filament-shield::filament-shield.column.updated_at'))
-                    ->dateTime(),
+                    ->date() // ->dateTime()
+                    ->description(fn ($record) => $record->updated_at->format(
+                        Table::$defaultTimeDisplayFormat,
+                    )),
             ])
             ->filters([
                 //

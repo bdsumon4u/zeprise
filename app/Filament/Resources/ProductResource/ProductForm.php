@@ -14,10 +14,13 @@ trait ProductForm
         return $form
             ->schema([
                 TextInput::make('name')
-                    ->unique(modifyRuleUsing: fn (Unique $rule) => $rule->where(
-                        Filament::getTenant()->getForeignKey(),
-                        Filament::getTenant()->getKey(),
-                    ))
+                    ->unique(
+                        ignoreRecord: true,
+                        modifyRuleUsing: fn (Unique $rule) => $rule->where(
+                            Filament::getTenant()->getForeignKey(),
+                            Filament::getTenant()->getKey(),
+                        )
+                    )
                     ->required(),
             ]);
     }

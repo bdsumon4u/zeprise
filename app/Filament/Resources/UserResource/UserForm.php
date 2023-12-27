@@ -8,7 +8,6 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
-use App\Filament\Resources\Shield\RoleResource;
 
 trait UserForm
 {
@@ -27,7 +26,7 @@ trait UserForm
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
                     ->relationship('roles', 'name')
-                    ->getOptionLabelFromRecordUsing(fn (Role $record) => Str::of($record->name)->replace('_', ' ')->title())
+                    ->getOptionLabelFromRecordUsing(fn (Role $record) => Str::headline($record->name))
                     ->saveRelationshipsUsing(fn (User $user, $state) => $user->syncRoles(
                         Role::query(fn ($query) => $query->whereBelongsTo(
                             ($owner = Filament::getTenant()->owner())->orWhereNull($owner->getForeignKey())

@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Billing\TenantBillingProvider;
+use App\Filament\Pages\Tenancy\EditStudioProfile;
 use App\Filament\Pages\Tenancy\RegisterStudio;
 use App\Http\Middleware\SyncSpatiePermissionsWithFilamentTenants;
 use App\Models\Studio;
@@ -9,10 +11,12 @@ use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Tables\Table;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -34,9 +38,16 @@ class AppPanelProvider extends PanelProvider
             ->path('app')
             ->login()
             ->registration()
+            ->passwordReset()
+            ->emailVerification()
+            ->profile()
             ->colors([
                 'primary' => Color::Rose,
             ])
+            ->font('Poppins')
+            ->databaseNotifications()
+            ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('18rem')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -69,12 +80,30 @@ class AppPanelProvider extends PanelProvider
             ], isPersistent: true)
             ->tenant(Studio::class, slugAttribute: 'slug')
             ->tenantRegistration(RegisterStudio::class)
+            // ->requiresTenantSubscription()
             // ->tenantBillingProvider(new TenantBillingProvider())
+            ->tenantProfile(EditStudioProfile::class)
+            ->tenantMenuItems([
+                // 'register' => MenuItem::make()->label('Register new team'),
+                // 'profile' => MenuItem::make()->label('Edit team profile'),
+                // 'billing' => MenuItem::make()->label('Manage subscription'),
+                // MenuItem::make()
+                //     ->label('Settings')
+                //     ->url(fn (): string => '')
+                //     ->icon('heroicon-m-cog-8-tooth')
+                //     ->visible(fn (): bool => true),
+                // ...
+            ])
             ->spa();
     }
 
     public function boot(): void
     {
+        Table::$defaultCurrency = 'bdt';
+        Table::$defaultDateDisplayFormat = 'd-M-Y';
+        Table::$defaultDateTimeDisplayFormat = 'd-M-Y h:i:s A';
+        Table::$defaultTimeDisplayFormat = 'h:i:s A';
+
         Model::resolveRelationUsing(
             ($panel = Filament::getCurrentPanel())->getTenantOwnershipRelationshipName(),
             fn (Model $model): BelongsTo => $model->belongsTo(
