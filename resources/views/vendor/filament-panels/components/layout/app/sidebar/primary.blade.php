@@ -7,14 +7,24 @@
         </div>
         <div class="h-full pt-5 pb-4 overflow-y-auto">
             <ul class="mt-5 px-2 space-y-2 flex flex-col items-center">
-                <x-filament-panels::menu.item href="" :active="request()->routeIs('shopper.dashboard')"
+                @php
+                    $getHref = fn (\Filament\Panel $panel): string => filled($domains = $panel->getDomains())
+                        ? str(collect($domains)->random())->prepend(request()->getScheme().'://')
+                        : \Filament\Support\generate_href_html($panel->getPath());
+                @endphp
+                @foreach (filament()->getPanels() as $panel)
+                <x-filament-panels::menu.item :href="$getHref($panel)" :active="$panel->getId() == filament()->getCurrentPanel()->getId()"
                     x-tooltip.raw="{{ __('shopper::layout.sidebar.dashboard') }}">
-                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                    </svg>
+                    <x-filament::icon
+                        :icon="$panel->getIcons()['menu'] ?? 'heroicon-o-cube'"
+                        @class([
+                            'fi-topbar-group-toggle-icon h-5 w-5',
+                            // 'text-gray-400 dark:text-gray-500' => filament()->getCurrentPanel()->getId() != 'app',
+                            // 'text-primary-500' => filament()->getCurrentPanel()->getId() == 'app',
+                        ])
+                    />
                 </x-filament-panels::menu.item>
+                @endforeach
             </ul>
         </div>
     </div>

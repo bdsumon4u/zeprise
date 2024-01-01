@@ -43,53 +43,20 @@
         <header
             class="fi-sidebar-header flex h-16 items-center bg-white px-6 ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 lg:shadow-sm"
         >
-            <div
-                @if (filament()->isSidebarCollapsibleOnDesktop())
-                    x-show="$store.sidebar.isOpen"
-                    x-transition:enter="lg:transition lg:delay-100"
-                    x-transition:enter-start="opacity-0"
-                    x-transition:enter-end="opacity-100"
-                @endif
-            >
-                @if ($homeUrl = filament()->getHomeUrl())
-                    <a {{ \Filament\Support\generate_href_html($homeUrl) }}>
-                        <x-filament-panels::logo />
-                    </a>
-                @else
-                    <x-filament-panels::logo />
-                @endif
-            </div>
 
-            @if (filament()->isSidebarCollapsibleOnDesktop())
-                <x-filament::icon-button
-                    color="gray"
-                    :icon="$isRtl ? 'heroicon-o-chevron-left' : 'heroicon-o-chevron-right'"
-                    {{-- @deprecated Use `panels::sidebar.expand-button.rtl` instead of `panels::sidebar.expand-button` for RTL. --}}
-                    :icon-alias="$isRtl ? ['panels::sidebar.expand-button.rtl', 'panels::sidebar.expand-button'] : 'panels::sidebar.expand-button'"
-                    icon-size="lg"
-                    :label="__('filament-panels::layout.actions.sidebar.expand.label')"
-                    x-cloak
-                    x-data="{}"
-                    x-on:click="$store.sidebar.open()"
-                    x-show="! $store.sidebar.isOpen"
-                />
+            @if (filament()->hasTenancy() && filament()->hasTenantMenu())
+                <div
+                    @class([
+                        '-mx-2' => ! filament()->isSidebarCollapsibleOnDesktop(),
+                    ])
+                    @if (filament()->isSidebarCollapsibleOnDesktop())
+                        x-bind:class="$store.sidebar.isOpen ? '-mx-2' : '-mx-4'"
+                    @endif
+                >
+                    <x-filament-panels::tenant-menu />
+                </div>
             @endif
 
-            @if (filament()->isSidebarCollapsibleOnDesktop() || filament()->isSidebarFullyCollapsibleOnDesktop())
-                <x-filament::icon-button
-                    color="gray"
-                    :icon="$isRtl ? 'heroicon-o-chevron-right' : 'heroicon-o-chevron-left'"
-                    {{-- @deprecated Use `panels::sidebar.collapse-button.rtl` instead of `panels::sidebar.collapse-button` for RTL. --}}
-                    :icon-alias="$isRtl ? ['panels::sidebar.collapse-button.rtl', 'panels::sidebar.collapse-button'] : 'panels::sidebar.collapse-button'"
-                    icon-size="lg"
-                    :label="__('filament-panels::layout.actions.sidebar.collapse.label')"
-                    x-cloak
-                    x-data="{}"
-                    x-on:click="$store.sidebar.close()"
-                    x-show="$store.sidebar.isOpen"
-                    class="ms-auto hidden lg:flex"
-                />
-            @endif
         </header>
     </div>
 
@@ -98,19 +65,6 @@
         style="scrollbar-gutter: stable"
     >
         {{ \Filament\Support\Facades\FilamentView::renderHook('panels::sidebar.nav.start') }}
-
-        @if (filament()->hasTenancy() && filament()->hasTenantMenu())
-            <div
-                @class([
-                    '-mx-2' => ! filament()->isSidebarCollapsibleOnDesktop(),
-                ])
-                @if (filament()->isSidebarCollapsibleOnDesktop())
-                    x-bind:class="$store.sidebar.isOpen ? '-mx-2' : '-mx-4'"
-                @endif
-            >
-                <x-filament-panels::tenant-menu />
-            </div>
-        @endif
 
         <ul class="-mx-2 flex flex-col gap-y-7">
             @foreach ($navigation as $group)

@@ -2,40 +2,33 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Billing\TenantBillingProvider;
 use App\Filament\Pages\Tenancy\EditStudioProfile;
 use App\Filament\Pages\Tenancy\RegisterStudio;
 use App\Http\Middleware\SyncSpatiePermissionsWithFilamentTenants;
 use App\Models\Studio;
-use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Tables\Table;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class AppPanelProvider extends PanelProvider
+class PosPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('app')
-            ->path('app')
+            ->id('pos')
+            ->domain('pos.ebiz.studio')
             ->login()
             ->registration()
             ->passwordReset()
@@ -44,25 +37,19 @@ class AppPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Rose,
             ])
-            ->icons([
-                'menu' => 'heroicon-o-squares-2x2',
-            ])
             ->font('Poppins')
             ->databaseNotifications()
             ->sidebarCollapsibleOnDesktop()
             ->sidebarWidth('18rem')
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/Pos/Resources'), for: 'App\\Filament\\Pos\\Resources')
+            ->discoverPages(in: app_path('Filament/Pos/Pages'), for: 'App\\Filament\\Pos\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Pos/Widgets'), for: 'App\\Filament\\Pos\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
-            ])
-            ->plugins([
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -99,21 +86,5 @@ class AppPanelProvider extends PanelProvider
             ])
             ->viteTheme('resources/css/filament/app/theme.css')
             ->spa();
-    }
-
-    public function boot(): void
-    {
-    //     Table::$defaultCurrency = 'bdt';
-    //     Table::$defaultDateDisplayFormat = 'd-M-Y';
-    //     Table::$defaultDateTimeDisplayFormat = 'd-M-Y h:i:s A';
-    //     Table::$defaultTimeDisplayFormat = 'h:i:s A';
-
-    //     Model::resolveRelationUsing(
-    //         ($panel = Filament::getCurrentPanel())->getTenantOwnershipRelationshipName(),
-    //         fn (Model $model): BelongsTo => $model->belongsTo(
-    //             $tenantModel = $panel->getTenantModel(),
-    //             app($tenantModel)->getForeignKey(),
-    //         ),
-    //     );
     }
 }
