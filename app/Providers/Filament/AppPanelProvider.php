@@ -94,6 +94,7 @@ class AppPanelProvider extends PanelProvider
                 //     ->visible(fn (): bool => true),
                 // ...
             ])
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->spa();
     }
 

@@ -7,20 +7,16 @@
     lang="{{ str_replace('_', '-', app()->getLocale()) }}"
     dir="{{ __('filament-panels::layout.direction') ?? 'ltr' }}"
     @class([
-        'fi min-h-screen smooth-scroll overflow-x-hidden overflow-y-auto',
+        'fi min-h-screen',
         'dark' => filament()->hasDarkModeForced(),
     ])
 >
     <head>
         {{ \Filament\Support\Facades\FilamentView::renderHook('panels::head.start') }}
 
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta http-equiv="X-DNS-Prefetch-Control" content="on">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
-        <meta name="base-url" content="{{ config('app.url') }}">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta charset="utf-8" />
+        <meta name="csrf-token" content="{{ csrf_token() }}" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         @if ($favicon = filament()->getFavicon())
             <link rel="icon" href="{{ $favicon }}" />
@@ -95,11 +91,9 @@
 
         {{ \Filament\Support\Facades\FilamentView::renderHook('panels::head.end') }}
     </head>
+
     <body
-        @class([
-            'fi-body min-h-screen bg-gray-50 font-normal text-gray-950 antialiased dark:bg-gray-950 dark:text-white',
-            'bg-secondary-100 font-sans antialiased overflow-hidden dark:bg-secondary-900',
-        ])
+        class="fi-body min-h-screen bg-gray-50 font-normal text-gray-950 antialiased dark:bg-gray-950 dark:text-white"
     >
         {{ \Filament\Support\Facades\FilamentView::renderHook('panels::body.start') }}
 
