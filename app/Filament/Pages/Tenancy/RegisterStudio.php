@@ -7,6 +7,10 @@ use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Wizard;
 use Filament\Forms\Form;
@@ -21,10 +25,13 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use LucasDotVin\Soulbscription\Models\Plan;
+use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 use function Filament\authorize;
 
@@ -36,7 +43,7 @@ class RegisterStudio extends SimplePage
     use Concerns\HasRoutes;
     use InteractsWithFormActions;
 
-    protected ?string $maxWidth = '7xl';
+    protected ?string $maxWidth = '3xl';
 
     /**
      * @var view-string
@@ -163,14 +170,69 @@ class RegisterStudio extends SimplePage
                         ->required(),
                     TextInput::make('slug')
                         ->required(),
-                ]),
+                    TextInput::make('email')
+                        ->email()
+                        ->required(),
+                    PhoneInput::make('phone')
+                        ->disableIpLookUp()
+                        ->disallowDropdown()
+                        ->defaultCountry('bd')
+                        ->initialCountry('bd')
+                        ->onlyCountries(['bd'])
+                        ->required(),
+                    FileUpload::make('logo')
+                        ->image()
+                        ->maxSize(512)
+                        ->directory('logos')
+                        ->required(),
+                    FileUpload::make('favicon')
+                        ->image()
+                        ->maxSize(256)
+                        ->directory('favicons')
+                        ->required(),
+                    MarkdownEditor::make('about')
+                        ->columnSpan(2)
+                        ->required(),
+                ])->columns(2),
                 Wizard\Step::make('Address Information')->schema([
-                    
-                ]),
+                    Select::make('district')
+                        ->options([
+                            1 => 'Dhaka',
+                            2 => 'Tangail',
+                        ])
+                        ->required(),
+                    Select::make('thana')
+                        ->options([
+                            1 => 'Mirzapur',
+                            2 => 'Mirpur',
+                        ])
+                        ->required(),
+                    TextInput::make('street_address')
+                        ->columnSpan(2)
+                        ->required(),
+                ])->columns(2),
                 Wizard\Step::make('Social Information')->schema([
-                    
-                ]),
-            ]),
+                    TextInput::make('facebook')
+                        ->prefixIcon('ri-facebook-fill')
+                        ->url(),
+                    TextInput::make('instagram')
+                        ->prefixIcon('ri-instagram-fill')
+                        ->url(),
+                    TextInput::make('tiktok')
+                        ->prefixIcon('ri-tiktok-fill')
+                        ->url(),
+                    TextInput::make('youtube')
+                        ->prefixIcon('ri-youtube-fill')
+                        ->url(),
+                ])->columns(2),
+            ])
+            ->submitAction(new HtmlString(Blade::render(<<<BLADE
+                <x-filament::button
+                    type="submit"
+                >
+                    Submit
+                </x-filament::button>
+            BLADE))),
         ]);
     }
 
