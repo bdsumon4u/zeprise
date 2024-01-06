@@ -50,8 +50,18 @@ class Studio extends Model implements HasCurrentTenantLabel
         return $this->belongsTo(Thana::class);
     }
 
-    public function products()
+    public function brands(): HasMany
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Shop\Brand::class);
+    }
+
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Shop\Category::class);
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Shop\Product::class);
     }
 }

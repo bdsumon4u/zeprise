@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
-use App\Models\Product;
+use App\Models\Shop\Product;
 use Filament\Resources\Resource;
 
 class ProductResource extends Resource
