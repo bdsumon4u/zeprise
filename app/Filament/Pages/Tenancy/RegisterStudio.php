@@ -171,9 +171,11 @@ class RegisterStudio extends SimplePage
                         ->live(onBlur: true)
                         ->required(),
                     TextInput::make('slug')
+                        ->unique()
                         ->required(),
                     TextInput::make('email')
                         ->email()
+                        ->unique()
                         ->required(),
                     PhoneInput::make('phone')
                         ->disableIpLookUp()
@@ -181,6 +183,7 @@ class RegisterStudio extends SimplePage
                         ->defaultCountry('bd')
                         ->initialCountry('bd')
                         ->onlyCountries(['bd'])
+                        ->unique()
                         ->required(),
                     MarkdownEditor::make('about')
                         ->columnSpan(2)

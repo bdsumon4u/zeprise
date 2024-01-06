@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Shop;
 use App\Filament\Resources\Shop\CategoryResource\Pages;
 use App\Filament\Resources\Shop\CategoryResource\RelationManagers;
 use App\Models\Shop\Category;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -14,6 +15,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Services\RelationshipJoiner;
 use Filament\Tables;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -62,31 +64,25 @@ class CategoryResource extends Resource
                                 ->label('Parent')
                                 ->relationship('parent')
                                 ->options(static function (Select $component): ?array {
-                                    $relationship = Relation::noConstraints(fn () => $component->getRelationship());
+                                    $query = static::getEloquentQuery();
 
-                                    $relationshipQuery = app(RelationshipJoiner::class)->prepareQueryForNoConstraints($relationship)->tree();
+                                    if ($record = $component->getRecord()) {
+                                        $query->where('id', '!=', $record->id);
+                                    }
 
-                                    // modify query
-
-                                    $qualifiedRelatedKeyName = 'categories.id';
-
-                                    return $relationshipQuery
-                                        ->get()
+                                    return $query
+                                        ->get(['id', 'name_path'])
                                         ->mapWithKeys(static fn (Category $record) => [
-                                            $record->{Str::afterLast($qualifiedRelatedKeyName, '.')} => $component->getOptionLabelFromRecord($record),
+                                            $record->id => $record->name_path,
                                         ])
                                         ->toArray();
                                 })
                                 ->searchable()
-                                // ->getSearchResultsUsing(function (string $search) {
-                                //     dd(Category::tree()->get());
-                                //     return Category::tree()->get();
-                                // })
                                 ->getOptionLabelFromRecordUsing(function (Category $record) {
                                     return $record->name_path;
                                 })
                                 ->placeholder('Select parent category')
-                                ->preload(),
+                                ->preload(), // for search to work
 
                             Forms\Components\Toggle::make('is_enabled')
                                 ->label('Visible to customers.')
@@ -123,15 +119,16 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
+                SpatieMediaLibraryImageColumn::make('thumbnail')
+                    ->label(''),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('parent.name')
+                Tables\Columns\TextColumn::make('name_path')
                     ->label('Parent')
-                    ->searchable()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('is_enabled')
+                Tables\Columns\ToggleColumn::make('is_enabled')
                     ->label('Visibility')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
@@ -143,7 +140,7 @@ class CategoryResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->groupedBulkActions([
                 Tables\Actions\DeleteBulkAction::make()
@@ -153,6 +150,13 @@ class CategoryResource extends Resource
                             ->warning()
                             ->send();
                     }),
+                Tables\Actions\BulkAction::make('Make visible')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->action(fn ($records) => $records->each->update(['is_enabled' => true])),
+                Tables\Actions\BulkAction::make('Disable')
+                    ->icon('heroicon-o-x-circle')
+                    ->action(fn ($records) => $records->each->update(['is_enabled' => false])),
             ]);
     }
 
@@ -170,5 +174,12 @@ class CategoryResource extends Resource
             'create' => Pages\CreateCategory::route('/create'),
             'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        // return parent::getEloquentQuery()->tree();
+        // return Filament::getTenant()->categories()->tree();
+        return Category::tree()->whereBelongsTo(Filament::getTenant());
     }
 }
