@@ -193,12 +193,9 @@ class RegisterStudio extends SimplePage
                         ->preload()
                         ->required(),
                     Select::make('thana_id')
-                        ->relationship('thana', titleAttribute: 'name')
-                        ->getSearchResultsUsing(fn (string $search, Get $get) => Thana::query()
-                            ->where('district_id', $get('district_id'))
-                            ->where('name', 'like', "{$search}%")
-                            ->pluck('name', 'id')
-                        )
+                        ->relationship('thana', 'name', function (Get $get, $query) {
+                            $query->where('district_id', $get('district_id'));
+                        })
                         ->searchable()
                         ->required(),
                     TextInput::make('street_address')

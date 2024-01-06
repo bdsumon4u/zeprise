@@ -6,12 +6,17 @@ use App\Filament\Resources\Shop\CategoryResource\Pages;
 use App\Filament\Resources\Shop\CategoryResource\RelationManagers;
 use App\Models\Shop\Category;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Support\Services\RelationshipJoiner;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 
 class CategoryResource extends Resource
@@ -34,50 +39,82 @@ class CategoryResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make()
-                    ->schema([
-                        Forms\Components\Grid::make()
-                            ->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
+                Forms\Components\Group::make([
+                    Forms\Components\Section::make()
+                        ->schema([
+                            Forms\Components\Grid::make()
+                                ->schema([
+                                    Forms\Components\TextInput::make('name')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
 
-                                Forms\Components\TextInput::make('slug')
-                                    ->disabled()
-                                    ->dehydrated()
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->unique(Category::class, 'slug', ignoreRecord: true),
-                            ]),
+                                    Forms\Components\TextInput::make('slug')
+                                        ->disabled()
+                                        ->dehydrated()
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->unique(Category::class, 'slug', ignoreRecord: true),
+                                ]),
 
-                        Forms\Components\Select::make('parent_id')
-                            ->label('Parent')
-                            ->relationship('parent', 'name', fn (Builder $query) => $query->where('parent_id', null))
-                            ->searchable()
-                            ->placeholder('Select parent category'),
+                            Forms\Components\Select::make('parent_id')
+                                ->label('Parent')
+                                ->relationship('parent')
+                                ->options(static function (Select $component): ?array {
+                                    $relationship = Relation::noConstraints(fn () => $component->getRelationship());
 
-                        Forms\Components\Toggle::make('is_visible')
-                            ->label('Visible to customers.')
-                            ->default(true),
+                                    $relationshipQuery = app(RelationshipJoiner::class)->prepareQueryForNoConstraints($relationship)->tree();
 
-                        Forms\Components\MarkdownEditor::make('description')
-                            ->label('Description'),
-                    ])
-                    ->columnSpan(['lg' => fn (?Category $record) => $record === null ? 3 : 2]),
-                Forms\Components\Section::make()
-                    ->schema([
-                        Forms\Components\Placeholder::make('created_at')
-                            ->label('Created at')
-                            ->content(fn (Category $record): ?string => $record->created_at?->diffForHumans()),
+                                    // modify query
 
-                        Forms\Components\Placeholder::make('updated_at')
-                            ->label('Last modified at')
-                            ->content(fn (Category $record): ?string => $record->updated_at?->diffForHumans()),
-                    ])
-                    ->columnSpan(['lg' => 1])
-                    ->hidden(fn (?Category $record) => $record === null),
+                                    $qualifiedRelatedKeyName = 'categories.id';
+
+                                    return $relationshipQuery
+                                        ->get()
+                                        ->mapWithKeys(static fn (Category $record) => [
+                                            $record->{Str::afterLast($qualifiedRelatedKeyName, '.')} => $component->getOptionLabelFromRecord($record),
+                                        ])
+                                        ->toArray();
+                                })
+                                ->searchable()
+                                // ->getSearchResultsUsing(function (string $search) {
+                                //     dd(Category::tree()->get());
+                                //     return Category::tree()->get();
+                                // })
+                                ->getOptionLabelFromRecordUsing(function (Category $record) {
+                                    return $record->name_path;
+                                })
+                                ->placeholder('Select parent category')
+                                ->preload(),
+
+                            Forms\Components\Toggle::make('is_enabled')
+                                ->label('Visible to customers.')
+                                ->default(true),
+
+                            Forms\Components\MarkdownEditor::make('description')
+                                ->label('Description'),
+                        ]),
+                ])
+                ->columnSpan(['lg' => 2]),
+                Forms\Components\Group::make([
+                    Forms\Components\Section::make('Thumbnail')
+                        ->schema([
+                            SpatieMediaLibraryFileUpload::make('thumbnail')
+                                ->hiddenLabel(),
+                        ]),
+                    Forms\Components\Section::make()
+                        ->schema([
+                            Forms\Components\Placeholder::make('created_at')
+                                ->label('Created at')
+                                ->content(fn (Category $record): ?string => $record->created_at?->diffForHumans()),
+
+                            Forms\Components\Placeholder::make('updated_at')
+                                ->label('Last modified at')
+                                ->content(fn (Category $record): ?string => $record->updated_at?->diffForHumans()),
+                        ])
+                        ->hiddenOn('create'),
+                ]),
             ])
             ->columns(3);
     }
@@ -94,7 +131,7 @@ class CategoryResource extends Resource
                     ->label('Parent')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\IconColumn::make('is_visible')
+                Tables\Columns\IconColumn::make('is_enabled')
                     ->label('Visibility')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
