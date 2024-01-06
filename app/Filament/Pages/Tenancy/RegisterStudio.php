@@ -2,7 +2,9 @@
 
 namespace App\Filament\Pages\Tenancy;
 
+use App\Models\District;
 use App\Models\Studio;
+use App\Models\Thana;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -180,32 +182,24 @@ class RegisterStudio extends SimplePage
                         ->initialCountry('bd')
                         ->onlyCountries(['bd'])
                         ->required(),
-                    FileUpload::make('logo')
-                        ->image()
-                        ->maxSize(512)
-                        ->directory('logos')
-                        ->required(),
-                    FileUpload::make('favicon')
-                        ->image()
-                        ->maxSize(256)
-                        ->directory('favicons')
-                        ->required(),
                     MarkdownEditor::make('about')
                         ->columnSpan(2)
                         ->required(),
                 ])->columns(2),
                 Wizard\Step::make('Address Information')->schema([
-                    Select::make('district')
-                        ->options([
-                            1 => 'Dhaka',
-                            2 => 'Tangail',
-                        ])
+                    Select::make('district_id')
+                        ->relationship('district', titleAttribute: 'name')
+                        ->searchable()
+                        ->preload()
                         ->required(),
-                    Select::make('thana')
-                        ->options([
-                            1 => 'Mirzapur',
-                            2 => 'Mirpur',
-                        ])
+                    Select::make('thana_id')
+                        ->relationship('thana', titleAttribute: 'name')
+                        ->getSearchResultsUsing(fn (string $search, Get $get) => Thana::query()
+                            ->where('district_id', $get('district_id'))
+                            ->where('name', 'like', "{$search}%")
+                            ->pluck('name', 'id')
+                        )
+                        ->searchable()
                         ->required(),
                     TextInput::make('street_address')
                         ->columnSpan(2)

@@ -29,9 +29,14 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
+use Filament\Support\Concerns\EvaluatesClosures;
 
 class AppPanelProvider extends PanelProvider
 {
+    use EvaluatesClosures;
+
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -97,15 +102,32 @@ class AppPanelProvider extends PanelProvider
                 // ...
             ])
             ->viteTheme('resources/css/filament/app/theme.css')
-            ->spa();
+            ->spa()
+            // ->renderHook('panels::auth.register.form.before', function (Panel $panel) {
+            //     $errorMessage = Session::get('socialment.error');
+
+            //     $plugin = SocialmentPlugin::get();
+            //     if (! $plugin->evaluate($plugin->visible) || ! $errorMessage) {
+            //         return '';
+            //     }
+
+            //     return View::make(
+            //         config('socialment.view.login-error', 'socialment::login-error'),
+            //         [
+            //             'message' => $errorMessage,
+            //         ]
+            //     );
+            // })
+            ->renderHook('panels::auth.login.form.after', fn () => View::make('filament.auth.social-list'))
+            ->renderHook('panels::auth.register.form.after', fn () => View::make('filament.auth.social-list'));
     }
 
     public function boot(): void
     {
         Table::$defaultCurrency = 'bdt';
         Table::$defaultDateDisplayFormat = 'd-M-Y';
-        Table::$defaultDateTimeDisplayFormat = 'd-M-Y h:i:s A';
         Table::$defaultTimeDisplayFormat = 'h:i:s A';
+        Table::$defaultDateTimeDisplayFormat = 'd-M-Y h:i:s A';
 
         Model::resolveRelationUsing(
             ($panel = Filament::getCurrentPanel())->getTenantOwnershipRelationshipName(),
