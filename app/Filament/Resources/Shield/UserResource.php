@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Shield;
 
-use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\Shield\UserResource\Pages;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;

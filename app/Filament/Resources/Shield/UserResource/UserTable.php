@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\UserResource;
+namespace App\Filament\Resources\Shield\UserResource;
 
 use Filament\Tables;
 use Filament\Tables\Table;
