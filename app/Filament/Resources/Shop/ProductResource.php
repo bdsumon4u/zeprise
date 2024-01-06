@@ -6,8 +6,10 @@ use App\Filament\Resources\Shop\BrandResource\RelationManagers\ProductsRelationM
 use App\Filament\Resources\Shop\ProductResource\Pages;
 use App\Filament\Resources\Shop\ProductResource\RelationManagers;
 use App\Filament\Resources\Shop\ProductResource\Widgets\ProductStats;
+use App\Models\Shop\Category;
 use App\Models\Shop\Product;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -59,27 +61,17 @@ class ProductResource extends Resource
                                         $set('slug', Str::slug($state));
                                     }),
 
-                                // Forms\Components\TextInput::make('slug')
-                                //     ->disabled()
-                                //     ->dehydrated()
-                                //     ->required()
-                                //     ->maxLength(255)
-                                //     ->unique(Product::class, 'slug', ignoreRecord: true),
+                                Forms\Components\TextInput::make('slug')
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->unique(Product::class, 'slug', ignoreRecord: true),
 
                                 Forms\Components\MarkdownEditor::make('description')
                                     ->columnSpan('full'),
                             ])
                             ->columns(2),
-
-                        Forms\Components\Section::make('Images')
-                            ->schema([
-                                SpatieMediaLibraryFileUpload::make('media')
-                                    ->collection('product-images')
-                                    ->multiple()
-                                    ->maxFiles(5)
-                                    ->hiddenLabel(),
-                            ])
-                            ->collapsible(),
 
                         Forms\Components\Section::make('Pricing')
                             ->schema([
@@ -90,13 +82,6 @@ class ProductResource extends Resource
 
                                 Forms\Components\TextInput::make('old_price')
                                     ->label('Compare at price')
-                                    ->numeric()
-                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
-                                    ->required(),
-
-                                Forms\Components\TextInput::make('cost')
-                                    ->label('Cost per item')
-                                    ->helperText('Customers won\'t see this price.')
                                     ->numeric()
                                     ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
                                     ->required(),
@@ -114,12 +99,6 @@ class ProductResource extends Resource
                                     ->label('Barcode (ISBN, UPC, GTIN, etc.)')
                                     // ->unique(Product::class, 'barcode', ignoreRecord: true)
                                     ->maxLength(255)
-                                    ->required(),
-
-                                Forms\Components\TextInput::make('qty')
-                                    ->label('Quantity')
-                                    ->numeric()
-                                    ->rules(['integer', 'min:0'])
                                     ->required(),
 
                                 Forms\Components\TextInput::make('security_stock')
@@ -144,9 +123,22 @@ class ProductResource extends Resource
 
                 Forms\Components\Group::make()
                     ->schema([
+                        Forms\Components\Section::make('Images')
+                            ->schema([
+                                SpatieMediaLibraryFileUpload::make('media')
+                                    ->collection('product-images')
+                                    ->image()
+                                    ->multiple()
+                                    ->maxFiles(7)
+                                    ->reorderable()
+                                    ->hiddenLabel()
+                                    ->required(),
+                            ])
+                            ->collapsed(fn (string $operation) => $operation === 'edit'),
+
                         Forms\Components\Section::make('Status')
                             ->schema([
-                                Forms\Components\Toggle::make('is_visible')
+                                Forms\Components\Toggle::make('is_enabled')
                                     ->label('Visible')
                                     ->helperText('This product will be hidden from all sales channels.')
                                     ->default(true),
@@ -155,20 +147,32 @@ class ProductResource extends Resource
                                     ->label('Availability')
                                     ->default(now())
                                     ->required(),
-                            ]),
+                            ])
+                            ->collapsed(fn (string $operation) => $operation === 'edit'),
 
                         Forms\Components\Section::make('Associations')
                             ->schema([
-                                // Forms\Components\Select::make('shop_brand_id')
-                                //     ->relationship('brand', 'name')
-                                //     ->searchable()
-                                //     ->hiddenOn(ProductsRelationManager::class),
+                                Forms\Components\Select::make('brand_id')
+                                    ->relationship('brand', 'name')
+                                    ->searchable()
+                                    ->preload(),
+                                    // ->hiddenOn(ProductsRelationManager::class),
 
-                                // Forms\Components\Select::make('categories')
-                                //     ->relationship('categories', 'name')
-                                //     ->multiple()
-                                //     ->required(),
-                            ]),
+                                Forms\Components\Select::make('categories')
+                                    ->relationship('categories')
+                                    ->searchable()
+                                    ->options(static fn () => CategoryResource::getEloquentQuery()
+                                        ->get(['id', 'name_path'])
+                                        ->mapWithKeys(static fn (Category $record) => [
+                                            $record->id => $record->name_path,
+                                        ])
+                                        ->toArray()
+                                    )
+                                    ->multiple()
+                                    ->required()
+                                    ->preload(),
+                            ])
+                            ->collapsed(fn (string $operation) => $operation === 'edit'),
                     ])
                     ->columnSpan(['lg' => 1]),
             ])
@@ -193,7 +197,7 @@ class ProductResource extends Resource
                     ->sortable()
                     ->toggleable(),
 
-                Tables\Columns\IconColumn::make('is_visible')
+                Tables\Columns\IconColumn::make('is_enabled')
                     ->label('Visibility')
                     ->sortable()
                     ->toggleable(),
@@ -243,13 +247,8 @@ class ProductResource extends Resource
                             ->icon('heroicon-m-currency-dollar'),
                         NumberConstraint::make('price')
                             ->icon('heroicon-m-currency-dollar'),
-                        NumberConstraint::make('cost')
-                            ->label('Cost per item')
-                            ->icon('heroicon-m-currency-dollar'),
-                        NumberConstraint::make('qty')
-                            ->label('Quantity'),
                         NumberConstraint::make('security_stock'),
-                        BooleanConstraint::make('is_visible')
+                        BooleanConstraint::make('is_enabled')
                             ->label('Visibility'),
                         BooleanConstraint::make('featured'),
                         BooleanConstraint::make('backorder'),

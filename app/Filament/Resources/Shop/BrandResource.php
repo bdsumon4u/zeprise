@@ -67,7 +67,8 @@ class BrandResource extends Resource
                     Forms\Components\Section::make('Thumbnail')
                         ->schema([
                             SpatieMediaLibraryFileUpload::make('thumbnail')
-                                ->hiddenLabel(),
+                                ->hiddenLabel()
+                                ->image(),
                         ]),
                     Forms\Components\Section::make()
                         ->schema([
@@ -134,8 +135,7 @@ class BrandResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // RelationManagers\ProductsRelationManager::class,
-            // RelationManagers\AddressesRelationManager::class,
+            RelationManagers\ProductsRelationManager::class,
         ];
     }
 

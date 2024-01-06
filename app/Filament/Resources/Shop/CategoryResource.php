@@ -78,9 +78,6 @@ class CategoryResource extends Resource
                                         ->toArray();
                                 })
                                 ->searchable()
-                                ->getOptionLabelFromRecordUsing(function (Category $record) {
-                                    return $record->name_path;
-                                })
                                 ->placeholder('Select parent category')
                                 ->preload(), // for search to work
 
@@ -97,7 +94,8 @@ class CategoryResource extends Resource
                     Forms\Components\Section::make('Thumbnail')
                         ->schema([
                             SpatieMediaLibraryFileUpload::make('thumbnail')
-                                ->hiddenLabel(),
+                                ->hiddenLabel()
+                                ->image(),
                         ]),
                     Forms\Components\Section::make()
                         ->schema([
@@ -163,7 +161,7 @@ class CategoryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // RelationManagers\ProductsRelationManager::class,
+            RelationManagers\ProductsRelationManager::class,
         ];
     }
 
