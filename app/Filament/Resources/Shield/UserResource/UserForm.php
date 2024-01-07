@@ -22,21 +22,12 @@ trait UserForm
                             Forms\Components\TextInput::make('name')
                                 ->autofocus()
                                 ->required()
-                                ->maxLength(255)
-                                ->columnSpan(['lg' => 2]),
+                                ->maxLength(255),
                             Forms\Components\TextInput::make('email')
                                 ->email()
                                 ->required()
                                 ->unique(static::getModel(), 'email', ignoreRecord: auth()->user()?->email)
                                 ->maxLength(255),
-                            PhoneInput::make('phone')
-                                ->disableIpLookUp()
-                                ->disallowDropdown()
-                                ->defaultCountry('bd')
-                                ->initialCountry('bd')
-                                ->onlyCountries(['bd'])
-                                // ->unique(static::getModel(), 'phone', ignoreRecord: auth()->user()?->phone)
-                                ->required(),
                         ])
                         ->columns(['lg' => 2]),
                     Forms\Components\Section::make('Change Password')

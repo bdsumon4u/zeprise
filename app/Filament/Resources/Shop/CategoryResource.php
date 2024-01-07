@@ -33,7 +33,7 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
 
-    protected static ?string $navigationParentItem = 'Products';
+    // protected static ?string $navigationParentItem = 'Products';
 
     protected static ?int $navigationSort = 2;
 
@@ -118,7 +118,8 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 SpatieMediaLibraryImageColumn::make('thumbnail')
-                    ->label(''),
+                    ->label('')
+                    ->square(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Name')
                     ->searchable()

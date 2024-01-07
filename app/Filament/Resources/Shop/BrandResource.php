@@ -27,7 +27,7 @@ class BrandResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-bookmark-square';
 
-    protected static ?string $navigationParentItem = 'Products';
+    // protected static ?string $navigationParentItem = 'Products';
 
     protected static ?int $navigationSort = 1;
 
@@ -91,7 +91,8 @@ class BrandResource extends Resource
         return $table
             ->columns([
                 SpatieMediaLibraryImageColumn::make('thumbnail')
-                    ->label(''),
+                    ->label('')
+                    ->square(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
