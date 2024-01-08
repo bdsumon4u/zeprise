@@ -69,4 +69,14 @@ class Studio extends Model implements HasCurrentTenantLabel
     {
         return $this->hasMany(Shop\Customer::class);
     }
+
+    public function attributes(): HasMany
+    {
+        return $this->hasMany(Attribute::class);
+    }
+
+    public function options(): HasMany
+    {
+        return $this->hasMany(Option::class);
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Models\Shop;
 
+use App\Models\AttributeOptionProduct;
+use Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,5 +24,10 @@ class Product extends Model implements HasMedia
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class);
+    }
+
+    public function attributes(): BelongsToMany
+    {
+        return $this->belongsToMany(AttributeOptionProduct::class);
     }
 }
