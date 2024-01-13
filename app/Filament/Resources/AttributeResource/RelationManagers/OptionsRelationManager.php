@@ -54,7 +54,9 @@ class OptionsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('value')
             ->columns([
-                Tables\Columns\TextColumn::make('value'),
+                $this->getOwnerRecord()->type === 'colorpicker'
+                    ? Tables\Columns\ColorColumn::make('value')
+                    : Tables\Columns\TextColumn::make('value'),
                 Tables\Columns\TextColumn::make('key'),
             ])
             ->filters([

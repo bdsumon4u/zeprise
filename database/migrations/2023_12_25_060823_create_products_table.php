@@ -19,10 +19,10 @@ return new class extends Migration
             $table->foreignIdFor(Brand::class)->nullable();
             $table->string('name');
             $table->string('slug')->nullable();
-            $table->string('sku')->nullable();
+            $table->string('sku');
             $table->string('barcode')->nullable();
             $table->longText('description')->nullable();
-        
+
             $table->unsignedBigInteger('security_stock')->default(0);
 
             $table->boolean('is_featured')->default(false);
