@@ -2,8 +2,9 @@
 
 use App\Models\Shop\Customer;
 use App\Models\District;
-use App\Models\Studio;
+use App\Models\Branch;
 use App\Models\Thana;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,7 @@ return new class extends Migration
     {
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Studio::class)->index();
+            $table->foreignId('owner_id')->index();
             $table->foreignIdFor(Customer::class)->index();
             $table->foreignIdFor(District::class);
             $table->foreignIdFor(Thana::class);

@@ -3,10 +3,10 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Billing\TenantBillingProvider;
-use App\Filament\Pages\Tenancy\EditStudioProfile;
-use App\Filament\Pages\Tenancy\RegisterStudio;
+use App\Filament\Pages\Tenancy\EditBranchProfile;
+use App\Filament\Pages\Tenancy\RegisterBranch;
 use App\Http\Middleware\SyncSpatiePermissionsWithFilamentTenants;
-use App\Models\Studio;
+use App\Models\Branch;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -85,11 +85,11 @@ class AppPanelProvider extends PanelProvider
             ->tenantMiddleware([
                 SyncSpatiePermissionsWithFilamentTenants::class,
             ], isPersistent: true)
-            ->tenant(Studio::class, slugAttribute: 'slug')
-            ->tenantRegistration(RegisterStudio::class)
+            ->tenant(Branch::class, slugAttribute: 'slug')
+            ->tenantRegistration(RegisterBranch::class)
             // ->requiresTenantSubscription()
             // ->tenantBillingProvider(new TenantBillingProvider())
-            ->tenantProfile(EditStudioProfile::class)
+            ->tenantProfile(EditBranchProfile::class)
             ->tenantMenuItems([
                 // 'register' => MenuItem::make()->label('Register new team'),
                 // 'profile' => MenuItem::make()->label('Edit team profile'),

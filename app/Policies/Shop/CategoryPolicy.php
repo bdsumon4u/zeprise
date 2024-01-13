@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Policies;
+namespace App\Policies\Shop;
 
 use App\Models\User;
-
+use App\Models\Shop\Category;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class UserPolicy
+class CategoryPolicy
 {
     use HandlesAuthorization;
 
@@ -18,18 +18,19 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_shield::user');
+        return $user->can('view_any_shop::category');
     }
 
     /**
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
+     * @param  \App\Models\Shop\Category  $category
      * @return bool
      */
-    public function view(User $user): bool
+    public function view(User $user, Category $category): bool
     {
-        return $user->can('view_shield::user');
+        return $user->can('view_shop::category');
     }
 
     /**
@@ -40,29 +41,31 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_shield::user');
+        return $user->can('create_shop::category');
     }
 
     /**
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
+     * @param  \App\Models\Shop\Category  $category
      * @return bool
      */
-    public function update(User $user): bool
+    public function update(User $user, Category $category): bool
     {
-        return $user->can('update_shield::user');
+        return $user->can('update_shop::category');
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
+     * @param  \App\Models\Shop\Category  $category
      * @return bool
      */
-    public function delete(User $user): bool
+    public function delete(User $user, Category $category): bool
     {
-        return $user->can('delete_shield::user');
+        return $user->can('delete_shop::category');
     }
 
     /**
@@ -73,18 +76,19 @@ class UserPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_shield::user');
+        return $user->can('delete_any_shop::category');
     }
 
     /**
      * Determine whether the user can permanently delete.
      *
      * @param  \App\Models\User  $user
+     * @param  \App\Models\Shop\Category  $category
      * @return bool
      */
-    public function forceDelete(User $user): bool
+    public function forceDelete(User $user, Category $category): bool
     {
-        return $user->can('force_delete_shield::user');
+        return $user->can('force_delete_shop::category');
     }
 
     /**
@@ -95,18 +99,19 @@ class UserPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_shield::user');
+        return $user->can('force_delete_any_shop::category');
     }
 
     /**
      * Determine whether the user can restore.
      *
      * @param  \App\Models\User  $user
+     * @param  \App\Models\Shop\Category  $category
      * @return bool
      */
-    public function restore(User $user): bool
+    public function restore(User $user, Category $category): bool
     {
-        return $user->can('restore_shield::user');
+        return $user->can('restore_shop::category');
     }
 
     /**
@@ -117,18 +122,19 @@ class UserPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_shield::user');
+        return $user->can('restore_any_shop::category');
     }
 
     /**
-     * Determine whether the user can bulk restore.
+     * Determine whether the user can replicate.
      *
      * @param  \App\Models\User  $user
+     * @param  \App\Models\Shop\Category  $category
      * @return bool
      */
-    public function replicate(User $user): bool
+    public function replicate(User $user, Category $category): bool
     {
-        return $user->can('replicate_shield::user');
+        return $user->can('replicate_shop::category');
     }
 
     /**
@@ -139,6 +145,7 @@ class UserPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_shield::user');
+        return $user->can('reorder_shop::category');
     }
+
 }

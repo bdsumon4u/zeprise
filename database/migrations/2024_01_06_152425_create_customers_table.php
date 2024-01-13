@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\Studio;
+use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,14 +15,14 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Studio::class)->index();
+            $table->foreignId('owner_id')->index();
             $table->string('name');
             $table->string('phone');
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
 
-            $table->unique(['studio_id', 'phone']);
+            $table->unique(['owner_id', 'phone']);
         });
     }
 

@@ -18,6 +18,11 @@ trait UserForm
             ->schema([
                 Forms\Components\Group::make([
                     Forms\Components\Section::make('Personal Information')
+                        ->description(function (string $operation) {
+                            if ($operation === 'create') {
+                                return 'If a user with the same email already exists, the existing user will be returned instead of creating a new one.';
+                            }
+                        })
                         ->schema([
                             Forms\Components\TextInput::make('name')
                                 ->autofocus()
@@ -26,17 +31,18 @@ trait UserForm
                             Forms\Components\TextInput::make('email')
                                 ->email()
                                 ->required()
-                                ->unique(static::getModel(), 'email', ignoreRecord: auth()->user()?->email)
+                                // ->unique(static::getModel(), 'email', ignoreRecord: auth()->user()?->email)
                                 ->maxLength(255),
                         ])
-                        ->columns(['lg' => 2]),
+                        ->columns(['lg' => 1 + ($form->getOperation() === 'edit')]),
                     Forms\Components\Section::make('Change Password')
                         ->visibleOn('edit')
                         ->schema([
                             Forms\Components\TextInput::make('current_password')
                                 ->password()
                                 ->currentPassword()
-                                ->dehydrated(false),
+                                ->dehydrated(false)
+                                ->requiredWith('password'),
 
                             Forms\Components\TextInput::make('password')
                                 ->label('New password')
@@ -65,11 +71,13 @@ trait UserForm
                                 ->multiple()
                                 ->preload()
                                 ->searchable()
-                                ->native(false),
+                                ->native(false)
+                                ->required(),
                             Forms\Components\TextInput::make('password')
                                 ->password()
                                 ->required()
                                 ->minLength(8)
+                                ->helperText('If a user with the same email already exists, the password will NOT be changed.')
                                 ->visibleOn('create'),
                         ]),
                 ])

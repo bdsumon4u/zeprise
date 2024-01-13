@@ -17,13 +17,12 @@ class SyncSpatiePermissionsWithFilamentTenants
     public function handle(Request $request, Closure $next): Response
     {
         $tenant = Filament::getTenant();
-        $owner = $tenant->owner();
 
         session()->put('tenant_id', $tenant->getKey());
         $spatie = getPermissionsTeamId();
 
-        if ($owner->getKey() !== $spatie) {
-            setPermissionsTeamId($owner);
+        if ($tenant->owner_id !== $spatie) {
+            setPermissionsTeamId($tenant->owner_id);
         }
 
         return $next($request);

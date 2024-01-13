@@ -11,6 +11,7 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
@@ -54,22 +55,27 @@ class User extends Authenticatable implements FilamentUser, HasDefaultTenant, Ha
 
     public function getTenants(Panel $panel): Collection
     {
-        return $this->studios;
+        return $this->tenants;
     }
 
     public function getDefaultTenant(Panel $panel): ?Model
     {
-        return Studio::find(session('tenant_id'));
+        return Branch::find(session('tenant_id'));
     }
 
-    public function studios(): BelongsToMany
+    public function tenants(): BelongsToMany
     {
-        return $this->belongsToMany(Studio::class)->withPivot(['owner']);
+        return $this->belongsToMany(Branch::class)->with('owner');
     }
+
+    // public function branches(): HasMany
+    // {
+    //     return $this->hasMany(Branch::class);
+    // }
 
     public function canAccessTenant(Model $tenant): bool
     {
-        return $this->studios->contains($tenant);
+        return $this->tenants->contains($tenant);
     }
 
     public function canAccessPanel(Panel $panel): bool

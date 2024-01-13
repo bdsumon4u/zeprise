@@ -1,7 +1,8 @@
 <?php
 
 use App\Models\Shop\Brand;
-use App\Models\Studio;
+use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Studio::class);
+            $table->foreignId('owner_id')->index();
             $table->foreignIdFor(Brand::class)->nullable();
             $table->string('name');
             $table->string('slug')->nullable();
@@ -42,10 +43,10 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['studio_id', 'name']);
-            $table->unique(['studio_id', 'slug']);
-            $table->unique(['studio_id', 'sku']);
-            $table->unique(['studio_id', 'barcode']);
+            $table->unique(['owner_id', 'name']);
+            $table->unique(['owner_id', 'slug']);
+            $table->unique(['owner_id', 'sku']);
+            $table->unique(['owner_id', 'barcode']);
         });
     }
 

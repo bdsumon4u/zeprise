@@ -12,11 +12,11 @@ use Filament\Pages\Tenancy\EditTenantProfile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class EditStudioProfile extends EditTenantProfile
+class EditBranchProfile extends EditTenantProfile
 {
     public static function getLabel(): string
     {
-        return 'Studio profile';
+        return 'Branch profile';
     }
 
     public function form(Form $form): Form

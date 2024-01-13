@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\HasCurrentTenantLabel;
+use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use LucasDotVin\Soulbscription\Models\Concerns\HasSubscriptions;
 
-class Studio extends Model implements HasCurrentTenantLabel
+class Branch extends Model implements HasName, HasCurrentTenantLabel
 {
     use HasFactory;
     use HasSubscriptions;
@@ -24,14 +25,23 @@ class Studio extends Model implements HasCurrentTenantLabel
      * @param  string|null  $field
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    // public function resolveRouteBinding($value, $field = null)
-    // {
-    //     return $this->whereBelongsTo(Filament::auth()->user())
-    //         ->resolveRouteBindingQuery($this, $value, $field)->first();
-    // }
+    public function resolveRouteBinding($value, $field = null)
+    {
+        /** @var User */
+        $owner = Filament::auth()->user();
+
+        return $owner->tenants()->where($field, $value)->first();
+    }
+
+    public function getFilamentName(): string
+    {
+        return $this->name;
+        return $this->name . ' # ' . $this->owner->name;
+    }
 
     public function getCurrentTenantLabel(): string
     {
+        return $this->owner->name;
         return 'Plan: '.strtoupper($this->subscription->plan->name);
     }
 
@@ -45,12 +55,9 @@ class Studio extends Model implements HasCurrentTenantLabel
         return $this->belongsToMany(User::class)->withPivot(['owner']);
     }
 
-    public function owner(): User
+    public function owner(): BelongsTo
     {
-        return $this->users()->wherePivot('owner', true)->firstOrFail([
-            Filament::auth()->user()->getKeyName(),
-            $this->getForeignKey(),
-        ]);
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
     public function district(): BelongsTo

@@ -53,9 +53,7 @@ class RoleResource extends Resource implements HasShieldPermissions
                                     ->unique(
                                         ignoreRecord: true,
                                         modifyRuleUsing: fn ($rule) => $rule->where(function ($query) {
-                                            $foreignKey = ($owner = Filament::getTenant()->owner())->getForeignKey();
-
-                                            return $query->where($foreignKey, $owner->getKey())->orWhereNull($foreignKey);
+                                            return $query->where('owner_id', Filament::getTenant()->owner_id)->orWhereNull('owner_id');
                                         })
                                     )
                                     ->required()
@@ -323,10 +321,7 @@ class RoleResource extends Resource implements HasShieldPermissions
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where(
-            Filament::auth()->user()->getForeignKey(),
-            Filament::auth()->user()->getKey()
-        );
+        return parent::getEloquentQuery()->where('owner_id', Filament::getTenant()->owner_id);
     }
 
     public static function isScopedToTenant(): bool

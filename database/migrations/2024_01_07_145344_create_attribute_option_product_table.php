@@ -3,7 +3,8 @@
 use App\Models\Attribute;
 use App\Models\Option;
 use App\Models\Shop\Product;
-use App\Models\Studio;
+use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,6 @@ return new class extends Migration
     {
         Schema::create('attribute_option_product', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Studio::class)->index();
             $table->foreignIdFor(Attribute::class)->index();
             $table->foreignIdFor(Option::class)->index();
             $table->foreignIdFor(Product::class)->index();

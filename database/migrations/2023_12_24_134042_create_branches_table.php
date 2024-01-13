@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\District;
-use App\Models\Studio;
+use App\Models\Branch;
 use App\Models\Thana;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -15,10 +15,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('studios', function (Blueprint $table) {
+        Schema::create('branches', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('owner_id')->index();
             $table->string('name');
-            $table->string('slug')->unique()->index();
+            $table->string('slug')->index();
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->longText('about');
@@ -30,15 +31,17 @@ return new class extends Migration
             $table->string('tiktok')->nullable();
             $table->string('youtube')->nullable();
             $table->timestamps();
+
+            $table->unique(['owner_id', 'slug']);
         });
 
-        Schema::create('studio_user', function (Blueprint $table) {
-            $table->foreignIdFor(Studio::class)->index();
+        Schema::create('branch_user', function (Blueprint $table) {
+            $table->foreignIdFor(Branch::class)->index();
             $table->foreignIdFor(User::class)->index();
             $table->boolean('owner')->default(false);
             $table->timestamps();
 
-            $table->primary(['studio_id', 'user_id']);
+            $table->primary(['branch_id', 'user_id']);
         });
     }
 
@@ -47,7 +50,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('studio_user');
-        Schema::dropIfExists('studios');
+        Schema::dropIfExists('branch_user');
+        Schema::dropIfExists('branches');
     }
 };

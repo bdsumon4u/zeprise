@@ -37,6 +37,8 @@ class CustomerResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    protected static bool $isScopedToTenant = false;
+
     public static function form(Form $form): Form
     {
         return $form

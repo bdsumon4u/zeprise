@@ -37,6 +37,8 @@ class CategoryResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    protected static bool $isScopedToTenant = false;
+
     public static function form(Form $form): Form
     {
         return $form

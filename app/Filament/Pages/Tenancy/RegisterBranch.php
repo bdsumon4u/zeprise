@@ -3,8 +3,9 @@
 namespace App\Filament\Pages\Tenancy;
 
 use App\Models\District;
-use App\Models\Studio;
+use App\Models\Branch;
 use App\Models\Thana;
+use App\Models\User;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -40,7 +41,7 @@ use function Filament\authorize;
 /**
  * @property Form $form
  */
-class RegisterStudio extends SimplePage
+class RegisterBranch extends SimplePage
 {
     use Concerns\HasRoutes;
     use InteractsWithFormActions;
@@ -61,7 +62,7 @@ class RegisterStudio extends SimplePage
 
     public static function getLabel(): string
     {
-        return 'Register studio';
+        return 'Register branch';
     }
 
     public static function routes(Panel $panel): void
@@ -128,19 +129,19 @@ class RegisterStudio extends SimplePage
         }
     }
 
-    protected function handleRegistration(array $data): Studio
+    protected function handleRegistration(array $data): Branch
     {
         return DB::transaction(function () use (&$data) {
-            $business = Studio::create($data);
-
+            /** @var User */
             $owner = Filament::auth()->user();
-            $owner->studios()->attach($business, [
-                'owner' => true,
+            $branch = Branch::create($data + [
+                'owner_id' => $owner->id,
             ]);
+            $branch->users()->attach($owner);
 
-            $plan = Plan::whereName('free')->firstOrFail();
-
-            $business->subscribeTo($plan);
+            $branch->subscribeTo(
+                Plan::whereName('free')->firstOrFail()
+            );
 
             $session_team_id = getPermissionsTeamId();
             // set actual new team_id to package instance
@@ -150,7 +151,7 @@ class RegisterStudio extends SimplePage
             // restore session team_id to package instance using temporary value stored above
             setPermissionsTeamId($session_team_id);
 
-            return $business;
+            return $branch;
         });
     }
 
@@ -163,7 +164,7 @@ class RegisterStudio extends SimplePage
     {
         return $form->schema([
             Wizard::make([
-                Wizard\Step::make('Studio Information')->schema([
+                Wizard\Step::make('Branch Information')->schema([
                     TextInput::make('name')
                         ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                             $set('slug', Str::slug($state));
@@ -171,7 +172,9 @@ class RegisterStudio extends SimplePage
                         ->live(onBlur: true)
                         ->required(),
                     TextInput::make('slug')
-                        ->unique()
+                        ->unique(modifyRuleUsing: fn ($rule) => $rule->where(function ($query) {
+                            return $query->where('owner_id', Filament::auth()->user()->id);
+                        }))
                         ->required(),
                     TextInput::make('email')
                         ->email()
@@ -288,12 +291,15 @@ class RegisterStudio extends SimplePage
 
     public static function canView(): bool
     {
+        # HOTASH
+        // if (!Filament::auth()->check()) {
+        //     return true;
+        // }
 
-        if (!Filament::auth()->check()) {
-            return true;
-        }
+        /** @var User */
+        $user = Filament::auth()->user();
 
-        return Filament::auth()->user()->studios->count() < 3;
+        return $user->tenants()->where('owner_id', '!=', $user->id)->doesntExist();
 
         try {
             return authorize('create', Filament::getTenantModel())->allowed();
